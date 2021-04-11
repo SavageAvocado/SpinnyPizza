@@ -4,10 +4,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
 
+import java.util.Objects;
+
 public class CheeseFallTask implements Runnable {
     private static final long DELAY = 1L;
+    private static final int SPEED = 5;
 
-    private final Handler handler = new Handler(Looper.myLooper());
+    private final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
 
     private final ImageView[] cheese;
     private final int displayHeight;
@@ -23,33 +26,30 @@ public class CheeseFallTask implements Runnable {
 
     @Override
     public void run() {
-        if (!this.running) {
-            this.running = true;
-            this.y = 0;
-        }
-
-        boolean run = false;
-
         try {
-            run = this.cheeseFall();
+            this.updateCheesePosition();
         } finally {
-            if (run) {
+            if (this.running) {
                 this.handler.postDelayed(this, DELAY);
             }
         }
     }
 
-    private boolean cheeseFall() {
+    private void updateCheesePosition() {
+        if (!this.running) {
+            this.running = true;
+            this.y = 0;
+        }
+
         for (ImageView cheese : this.cheese) {
             if (this.y >= this.displayHeight - (cheese.getHeight() * 1.5)) {
                 this.reset();
-                return false;
+                break;
             } else {
                 cheese.setY(this.y);
             }
         }
-        this.y += 3;
-        return true;
+        this.y += SPEED;
     }
 
     private void reset() {
